@@ -1,0 +1,20 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: httpbin-virtualservice
+  namespace: apps
+spec:
+  hosts:
+  - "nonprod.domain.net"
+  gateways:
+  - istio-system/httpbin-gateway
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: httpbin
+        port:
+          number: 8000
+
