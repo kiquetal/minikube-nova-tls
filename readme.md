@@ -70,40 +70,67 @@ To test HTTP access:
 curl -v http://nonprod.domain.net/get
 ```
 
-To test HTTPS access with curl (with options to handle TLS certificates):
+To test HTTPS access with proper TLS certificate validation:
 ```bash
-# Basic HTTPS test (will fail if using self-signed certificates)
-curl -v https://nonprod.domain.net/get
-
-# Skip certificate validation (use for self-signed certificates)
-curl -v -k https://nonprod.domain.net/get
-
-# Specify a custom CA certificate for validation
+# Using the CA certificate for validation (recommended approach)
 curl -v --cacert /path/to/ca.pem https://nonprod.domain.net/get
 
-# Using full TLS options
+# To specify SNI (Server Name Indication) explicitly
+curl -v --cacert /path/to/ca.pem --resolve nonprod.domain.net:443:<INGRESS_IP> https://nonprod.domain.net/get
+```
+
+#### Testing with mTLS (Mutual TLS)
+
+For mTLS testing, you need both server validation and client authentication:
+
+```bash
+# Full mTLS with client certificate authentication
 curl -v --cacert /path/to/ca.pem \
   --cert /path/to/client.pem \
   --key /path/to/client-key.pem \
+  https://nonprod.domain.net/get
+  
+# If your client certificate has a passphrase
+curl -v --cacert /path/to/ca.pem \
+  --cert /path/to/client.pem \
+  --key /path/to/client-key.pem \
+  --pass mypassphrase \
   https://nonprod.domain.net/get
 ```
 
 The httpbin service provides different endpoints for testing:
 ```bash
 # Test with JSON data in the response
-curl -k https://nonprod.domain.net/json
+curl --cacert /path/to/ca.pem https://nonprod.domain.net/json
 
 # Test with headers in the response  
-curl -k https://nonprod.domain.net/headers
+curl --cacert /path/to/ca.pem https://nonprod.domain.net/headers
 
 # Test with request information echo
-curl -k -X POST -d "test data" https://nonprod.domain.net/anything
+curl --cacert /path/to/ca.pem -X POST -d "test data" https://nonprod.domain.net/anything
 ```
 
 #### Verifying TLS Connection Details
 
 To verify the TLS certificate details:
 ```bash
-echo | openssl s_client -connect nonprod.domain.net:443 -servername nonprod.domain.net
+echo | openssl s_client -connect nonprod.domain.net:443 -servername nonprod.domain.net -CAfile /path/to/ca.pem
 ```
 
+#### Setting Up Client Certificates for mTLS
+
+If you need to create client certificates for testing mTLS:
+
+1. You can use the sample certificates in the Istio distribution:
+```bash
+# Copy sample certificates from Istio
+cp -r /mydata/codes/2025/minikube-nova-tls/istio-1.24.6/samples/certs /mydata/codes/2025/minikube-nova-tls/client-certs
+```
+
+2. Or generate new client certificates using the Istio script:
+```bash
+cd /mydata/codes/2025/minikube-nova-tls/istio-1.24.6/samples/certs
+./generate-workload.sh client
+```
+
+This will create client certificates that can be used for mTLS testing.
