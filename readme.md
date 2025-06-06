@@ -36,6 +36,7 @@ kubectl apply -f deployment.yaml
 5. Create the Gateway and VirtualService:
 ```bash
 kubectl apply -f gateway.yaml
+kubectl apply -f vs.yaml
 ```
 
 6. Access the application:
@@ -61,3 +62,48 @@ Then you can access the application at:
 http://nonprod.domain.net/
 https://nonprod.domain.net/
 ```
+
+#### Testing with curl
+
+To test HTTP access:
+```bash
+curl -v http://nonprod.domain.net/get
+```
+
+To test HTTPS access with curl (with options to handle TLS certificates):
+```bash
+# Basic HTTPS test (will fail if using self-signed certificates)
+curl -v https://nonprod.domain.net/get
+
+# Skip certificate validation (use for self-signed certificates)
+curl -v -k https://nonprod.domain.net/get
+
+# Specify a custom CA certificate for validation
+curl -v --cacert /path/to/ca.pem https://nonprod.domain.net/get
+
+# Using full TLS options
+curl -v --cacert /path/to/ca.pem \
+  --cert /path/to/client.pem \
+  --key /path/to/client-key.pem \
+  https://nonprod.domain.net/get
+```
+
+The httpbin service provides different endpoints for testing:
+```bash
+# Test with JSON data in the response
+curl -k https://nonprod.domain.net/json
+
+# Test with headers in the response  
+curl -k https://nonprod.domain.net/headers
+
+# Test with request information echo
+curl -k -X POST -d "test data" https://nonprod.domain.net/anything
+```
+
+#### Verifying TLS Connection Details
+
+To verify the TLS certificate details:
+```bash
+echo | openssl s_client -connect nonprod.domain.net:443 -servername nonprod.domain.net
+```
+
