@@ -1,0 +1,20 @@
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: httpbin-mtls-virtualservice
+  namespace: apps
+spec:
+  hosts:
+  - "mtls.nonprod.domain.net"
+  gateways:
+  - istio-system/httpbin-mtls-gateway
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: httpbin
+        port:
+          number: 8000
+
