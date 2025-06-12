@@ -134,3 +134,5 @@ cd /mydata/codes/2025/minikube-nova-tls/istio-1.24.6/samples/certs
 ```
 
 This will create client certificates that can be used for mTLS testing.
+
+For the client we could use a cn like `client-ambassador` or `client-ambassador-1` to differentiate between multiple clients.
