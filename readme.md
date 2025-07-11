@@ -8,6 +8,14 @@ helm install istio-base istio/base -n istio-system --create-namespace
 helm install istiod istio/istiod -n istio-system --wait
 helm install istio-ingress istio/gateway -n istio-system
 
+
+### Actions for create secrets in mtls
+
+kubectl create secret tls istio-ingressgateway-certs \
+  --cert=/path/to/your/cert.pem \
+  --key=/path/to/your/key.pem \
+  -n istio-system
+
 #### Deploying the Demo Application
 
 1. Create the necessary namespaces:
